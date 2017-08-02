@@ -24,15 +24,15 @@ Kylie kyl@example.com 9
 Chardonnay chards@example.com 1.3
 ```
 
-Each line is a person to send the email to, their email address and anything that should be subs
+Each line is a person to send the email to, their email address and anything that should be subs. More examples are available from [`example.tsv`](https://github.com/andrewyatz/generic-emailer/blob/master/example.tsv).
 
 # Template
 
-The template should be a Template::Tiny file. Attributes are available from the `[template_defaults]` section of the config file and each row of the input TSV file is made available with the same column headers.
+The template should be a [Template::Tiny](https://metacpan.org/pod/Template::Tiny) file. Attributes are available from the `[template_defaults]` section of the config file and each row of the input TSV file is made available with the same column headers.
 
 # Subject
 
-The subject line is specified in the config file. Subject can also be a Template::Tiny string and will have the same parameters given to it as the main template.
+The subject line is specified in the config file. Subject can also be a [Template::Tiny](https://metacpan.org/pod/Template::Tiny) string and will have the same parameters given to it as the main template.
 
 # Example INI file
 
