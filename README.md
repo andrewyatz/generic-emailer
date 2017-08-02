@@ -37,3 +37,14 @@ The subject line is specified in the config file. Subject can also be a [Templat
 # Example INI file
 
 See [`example.ini`](https://github.com/andrewyatz/generic-emailer/blob/master/example.ini) for more details
+
+# Configuring Email SMTP Target
+The emailer uses [Email::Sender](https://metacpan.org/pod/Email::Sender) to forward the generated messages onto an SMTP server. You configure these settings in the `[smtp]` block of the config INI file. If you do not require SMTP authentication then the configuration is as easy as:
+
+```
+[smtp]
+host=smtp.example.com
+port=25
+```
+
+Consult the [Email::Sender::Transport::SMTP](https://metacpan.org/pod/Email::Sender::Transport::SMTP) for more configuration information.
