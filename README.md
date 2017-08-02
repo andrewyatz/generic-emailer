@@ -36,4 +36,4 @@ The subject line is specified in the config file. Subject can also be a Template
 
 # Example INI file
 
-See `example.ini` for more details
+See [`example.ini`](https://github.com/andrewyatz/generic-emailer/blob/master/example.ini) for more details
