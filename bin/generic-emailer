@@ -1,0 +1,85 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Template::Tiny;
+use Text::CSV;
+use Email::Simple;
+use Email::Sender::Simple qw(sendmail);
+use Email::Sender::Transport::SMTP qw();
+use Config::Tiny;
+use Getopt::Long;
+
+my $config_file = q{};
+my $input_file = q{};
+my $template_file = q{};
+my $live = 0;
+GetOptions("config=s" => \$config_file, "input=s" => \$input_file, "template=s" => \$template_file, "live" => \$live)
+or die("Error in command line arguments. Expect --config CONFIG --input INPUT --live (set only to send emails)\n");
+
+die "Cannot find config file '${config_file}'" if ! -f $config_file;
+die "Cannot find input file '${input_file}'" if ! -f $input_file;
+die "Cannot find template file '${template_file}'" if ! -f $template_file;
+
+my $config = Config::Tiny->read($config_file);
+my $root = $config->{_};
+die "No subject given in the config file" unless exists $root->{subject};
+die "No template_defaults given in the config file" unless exists $config->{template_defaults};
+
+my $LIVE = $live;
+
+my $body_template = q{};
+{
+  local $/ = undef;
+  open my $fh, '<', $template_file or die "Cannot open $template_file for reading: $!";
+  $body_template = <$fh>;
+  close $fh;
+}
+
+my $tt = Template::Tiny->new();
+my $csv = Text::CSV->new( { binary => 1, sep_char => "\t", blank_is_undef => 1, empty_is_undef => 1 } ) 
+  or die "Cannot use CSV: ".Text::CSV->error_diag();
+
+open my $fh, "<:encoding(utf8)", $input_file or die "Cannot open '${input_file}' for reading: $!";
+my $headers = $csv->getline($fh);
+$csv->column_names($headers);
+while(my $hr = $csv->getline_hr($fh)) {
+  my $template_args = { 
+    %{ $config->{template_defaults} },
+    %{ $hr },
+  };
+  my $body_output = q{};
+  my $subject_output = q{};
+  my $subject_template = $root->{subject};
+  $tt->process(\$subject_template, $template_args, \$subject_output);
+  $tt->process(\$body_template, $template_args, \$body_output);
+
+  send_email($hr->{email}, $subject_output, $body_output);
+}
+
+sub send_email {
+  my ($email, $subject, $body) = @_;
+  if($LIVE) {
+    my $message = Email::Simple->create(
+      header => [
+        From => $config->{from}->{email},
+        To => $email,
+        Subject => $subject
+      ],
+      body => $body
+    );
+    sendmail($message, {
+      from => $config->{from}->{email},
+      transport => Email::Sender::Transport::SMTP->new($config->{smtp})
+    });
+  }
+  else {
+    print q{=}x20;
+    print "\n";
+    print $body;
+    print q{=}x20;
+    print "\n";
+  }
+  return;
+}

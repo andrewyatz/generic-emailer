@@ -1,0 +1,3 @@
+[% salutation %],
+How are you [% name %]? You owe [% amount %].
+Bye
