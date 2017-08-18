@@ -73,6 +73,7 @@ sub send_email {
       from => $config->{from}->{email},
       transport => Email::Sender::Transport::SMTP->new($config->{smtp})
     });
+    print "Sent email to ${email} successfully\n";
   }
   else {
     print q{=}x20;
