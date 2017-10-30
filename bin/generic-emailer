@@ -40,6 +40,7 @@ die "No subject given in the config file" unless exists $root->{subject};
 die "No template_defaults given in the config file" unless exists $config->{template_defaults};
 
 my $LIVE = $live;
+my $IGNORE_ERRORS = exists $root->{ignore_errors} ? $root->{ignore_errors} : 0;
 
 my $body_template = q{};
 {
@@ -81,11 +82,19 @@ sub send_email {
       ],
       body => $body
     );
-    sendmail($message, {
-      from => $config->{from}->{email},
-      transport => Email::Sender::Transport::SMTP->new($config->{smtp})
-    });
-    print "Sent email to ${email} successfully\n";
+    eval {
+      sendmail($message, {
+        from => $config->{from}->{email},
+        transport => Email::Sender::Transport::SMTP->new($config->{smtp})
+      });
+      print "SUCESS: Sent email to ${email}\n";
+    };
+    if($@) {
+      print "ERROR: Could not send email to ${email}\n";
+      if(!$IGNORE_ERRORS) {
+        die $@;
+      }
+    }
   }
   else {
     print q{=}x20;
