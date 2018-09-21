@@ -8,6 +8,14 @@ Perl script used to email a message to multiple people
 ./bin/generic-emailer --config example.ini --input example.tsv --template template.txt --live
 ```
 
+## Installing
+
+You should install the Perl dependencies listed in cpanfile like so.
+
+```bash
+cpanm --installdeps .
+```
+
 # Live Flag
 
 Specifying `--live` will make the script send out emails. Not specifying this will cause the program to warn email output to screen. Do this before you spam people with a lot of email.
